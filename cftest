@@ -1,0 +1,65 @@
+#! /usr/bin/python
+"""cftest - Engine to drive the execution of other modules"""
+
+
+import os
+import sys
+
+
+from common.util import BRANDS
+
+
+def main():
+    """entry point for cross filter harness"""
+    usage = """Usage: cftest [options] [module brand filternumber]
+    
+Options:
+    -h \t\tdisplay this message and exit
+    -l \t\tlist available module names from which to get matching filters
+    -a \t\tdisplay all matches
+
+Example: -> ./cftest fram acdelco PF47
+\t\twill return all fram filters that match acdelco PF47
+\t\tUsing -a flag will return all fram filters that match PF47
+    """
+
+    arg_count = len(sys.argv)
+    if arg_count < 2:
+        print usage
+        sys.exit(1)
+
+    if arg_count == 2:
+        option = sys.argv[1]
+        if option == '-h':
+            print usage
+            sys.exit(0)
+        elif option == '-l':
+            print 'avilable brand modules'
+            for brand in BRANDS:
+                print '\t%s' % brand
+    
+    elif arg_count == 4:
+        module_name = sys.argv[1].replace(' ', '')
+        module = __import__('scripts.%s' % module_name, fromlist=['scripts'])
+        brand = sys.argv[2]
+        filternumber = sys.argv[3]
+        print module.getFilter(filternumber, brand)
+    
+    elif arg_count == 5:
+        if sys.argv[1] != '-a':
+            print usage
+            sys.exit(1)
+        
+        module_name = sys.argv[2].replace(' ', '')
+        brand = sys.argv[3]
+        module = __import__('scripts.%s' % module_name, fromlist=['scripts'])
+        filternumber = sys.argv[4]
+        print module.getFilter(filternumber, brand, full=True)
+    
+    else:
+        print usage
+        sys.exit(1)
+
+
+if __name__ == "__main__":
+    main()
