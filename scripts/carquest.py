@@ -1,47 +1,39 @@
-import requests
 from bs4 import BeautifulSoup
-import sys
+from crossfilter.common.util import get, format_brand
 
 
 def getFilter(filterNumber, brand, full=False):
-	brand = brand.upper()
-	filterNumber = filterNumber.upper()
+    brand_names, filterNumber = format_brand('carquest',
+                                             brand,
+                                             filterNumber)
+    address = 'http://www.cficonnect.com/filterlookup/results.asp?ExactMatch=0&PartNo1=%s&MakerCode1='
+    address = address % filterNumber
 
-	if brand == 'ACDELCO':
-		brand = 'AC DELCO'
-	if brand == 'HASTINGS':
-		brand = 'HASTINGS FILTERS'
+    content = get(address)
+    if not content:
+        return ''
+    soup = BeautifulSoup(content)
 
-	address = 'http://www.cficonnect.com/filterlookup/results.asp?ExactMatch=0&PartNo1=%s&MakerCode1='
-	address = address % filterNumber
+    table_cells = soup.find_all("td", class_='bluemedium')
+    cqs = set()
 
-	try:
-		page = requests.get(address)
-		soup = BeautifulSoup(page.text)
-	except Exception:
-		print 'Exception accessing carquest website'
-		return ''
+    def add_filter(row):
+        ref = row.find('a')
+        value = ref.getText().strip(' \n')
+        cqs.add(value)
 
-	table_cells = soup.find_all("td", class_='bluemedium')
-	cqs = set()
+    for table_cell in table_cells:
+        row = table_cell.parent
+        cells = row.find_all('td')
+        match_number = cells[0].getText().strip()
+        match_brand = cells[1].getText().strip()
+        carquest_number = cells[3].getText().strip()
 
-	def add_filter(row):
-		ref = row.find('a')
-		value = ref.getText().strip(' \n')
-		cqs.add(value)
+        string = row.getText().strip(' \n')
+        if full:
+            print ', '.join([cell.getText().strip() for cell in cells])
 
-	for table_cell in table_cells:
-		row = table_cell.parent
-		cells = row.find_all('td')
-		match_number = cells[0].getText().strip()
-		match_brand = cells[1].getText().strip()
-		carquest_number = cells[3].getText().strip()
-
-		string = row.getText().strip(' \n')
-		if full:
-			print ', '.join([cell.getText().strip() for cell in cells])
-
-		if match_number == filterNumber and match_brand == brand:
-			cqs.add(carquest_number)
-			
-	return ','.join(cqs).strip()
+        if match_number == filterNumber and match_brand == brand:
+            cqs.add(carquest_number)
+            
+    return ','.join(cqs).strip()

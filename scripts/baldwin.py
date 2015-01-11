@@ -1,33 +1,29 @@
-import requests
 from bs4 import BeautifulSoup
-import sys
+from crossfilter.common.util import get, format_brand
 
 
 def getFilter(filterNumber, brand, full=False):
-	brand = brand.upper()
-	filterNumber = filterNumber.upper()
+    brand_names, filterNumber = format_brand('baldwin',
+                                             brand,
+                                             filterNumber)
+    address = "http://catalog.baldwinfilter.com/BaldwinDisplay.asp?URL=BaldwinOEM.asp&partnumber=%s=&optiontype=OEM"
+    address = address % filterNumber
+    
+    content = get(address)
+    soup = BeautifulSoup(content)
+    
+    rows = soup.find_all("tr", class_="tblrow")
+    bws = set()
 
-	if brand == 'HASTINGS':
-		brand = 'HASTINGS PREMIUM FILTERS'
+    for row in rows:
+        cells = row.find_all('td')
+        comp_number = cells[0].getText().strip()
+        comp_brand = cells[1].getText().strip()
+        baldwin_filter = cells[2].getText().strip()
+        if full:
+            print ', '.join([cell.getText().strip() for cell in cells])
 
-	address = "http://catalog.baldwinfilter.com/BaldwinDisplay.asp?URL=BaldwinOEM.asp&partnumber=%s=&optiontype=OEM"
-	address = address % filterNumber
-	
-	page = requests.get(address)
-	soup = BeautifulSoup(page.text)
-	
-	rows = soup.find_all("tr", class_="tblrow")
-	bws = set()
+        if comp_brand in brand_names and comp_number == filterNumber:
+            bws.add(baldwin_filter)
 
-	for row in rows:
-		cells = row.find_all('td')
-		comp_number = cells[0].getText().strip()
-		comp_brand = cells[1].getText().strip()
-		baldwin_filter = cells[2].getText().strip()
-		if full:
-			print ', '.join([cell.getText().strip() for cell in cells])
-
-		if comp_brand == brand and comp_number == filterNumber:
-			bws.add(baldwin_filter)
-
-	return ','.join(bws)
+    return ','.join(bws)
