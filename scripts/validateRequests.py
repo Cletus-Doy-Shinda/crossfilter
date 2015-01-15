@@ -4,14 +4,14 @@ requested by Cross Filter in the filters database"""
 
 
 import MySQLdb
-import downloadFilters3 as df
+import downloadfilters as df
 import sys
 import requests
 
 from bs4 import BeautifulSoup
 from datetime import datetime
 from crossfilter.common.secure import get_mysql_credentials
-from crossfilter.common.util import INSERT_SQL_FILE, BRANDS, VALID_FILE
+from crossfilter.common import util
 
 
 def is_oil_filter(session, filter_number):
@@ -66,7 +66,7 @@ def valid(session, brand, fram_number):
     def _getinfo(fbrand, htmlrow, idx):
         if fbrand.upper() == 'AC-DELCO':
             fbrand = 'ACDELCO'
-        if fbrand not in BRANDS:
+        if fbrand not in util.BRANDS:
             return
 
         has_link = htmlrow[idx].find('a')
@@ -106,7 +106,6 @@ def valid(session, brand, fram_number):
                     prev_brand = new_brand
                     _getinfo(new_brand, tds, 2)
 
-    print len(valids)
     return valids
 
 
@@ -146,11 +145,8 @@ class Validator():
 
     def insert_new_filter(self, new_brand, new_filter):
         """Insert <new_brand> <new_filter> in filters table in the database"""
-        with open(INSERT_SQL_FILE, 'a', 1) as insert_file:
-            new_insert = "insert into filters(brand, filter) " \
-                         "values('%s', '%s')" % (new_brand, new_filter)
-            print new_insert
-            self.cursor.execute(new_insert)
+        with open(util.INSERT_SQL_FILE, 'a', 1) as insert_file:
+            util.insert_new_filter(new_brand, new_filter, self.cursor)
             ID = self.db.insert_id()
             new_insert = "insert into filters(id, brand, filter) " \
                          "values(%d, '%s', '%s');\n" % \
@@ -190,7 +186,7 @@ class Validator():
             self.db.close()
             return
 
-        with open(VALID_FILE,'a') as out:
+        with open(util.VALID_FILE, 'a') as out:
             dateformat = '%Y-%m-%d %H:%M:%S'
             now = datetime.strftime(datetime.today(), dateformat)
             print '*************************'

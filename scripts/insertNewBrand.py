@@ -3,7 +3,7 @@ import sys
 import os
 import time
 import subprocess
-import downloadFilters3 as df
+import downloadfilters as df
 
 from validateRequests import insert_new_filter
 from crossfilter.common.secure import get_mysql_credentials, get_braxas_credentials
@@ -17,6 +17,7 @@ PRODUCER_FILE = '/var/server/producer.php'
 TEXT_DIR = '/home/abe/FilterApp/text/'
 BRAXAS_LOG_FILE = os.path.join(TEXT_DIR, 'braxas_insert.sql')
 REMOTE_BRAXAS_FILE = '/Users/Abe/crossfilter/text/braxas_insert.sql'
+
 
 def produce(filterNumber, brand, ID):
     """Acts like a producer - appends new filters to list"""
@@ -35,7 +36,8 @@ def start_consumer():
     subprocess.call(cmd)
 
     # start the consumer
-    cmd = ['ssh', login_creds, 'screen', '-d', '-m', '/usr/bin/python', '/Users/Abe/crossfilter/python/consumer.py']
+    cmd = ['ssh', login_creds, 'screen', '-d', '-m',
+           '/usr/bin/python', '/Users/Abe/crossfilter/python/consumer.py']
     subprocess.call(cmd)
 
     print 'consumer started'

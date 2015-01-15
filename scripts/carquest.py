@@ -33,7 +33,7 @@ def getFilter(filterNumber, brand, full=False):
         if full:
             print ', '.join([cell.getText().strip() for cell in cells])
 
-        if match_number == filterNumber and match_brand == brand:
+        if match_number == filterNumber and match_brand in brand_names:
             cqs.add(carquest_number)
             
     return ','.join(cqs).strip()

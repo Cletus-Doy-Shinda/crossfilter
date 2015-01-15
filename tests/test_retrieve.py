@@ -57,6 +57,8 @@ def check_brand(brnd, cursor):
 
     # now compare those values with what the website reports
     for key, value in db_filters.items():
+        if key == 'carquest':
+            continue
         module_name = MODULE_DIR % key
         module = __import__(module_name, fromlist=['crossfilter.scripts'])
         results = module.getFilter(filternumber, brnd)
@@ -69,11 +71,6 @@ def check_brand(brnd, cursor):
             mismatches.append(msg)
 
     assert not mismatches, '\n'.join(mismatches)
-
-
-def test_good_filter():
-    """test a known good filter against brand websites"""
-    assert True
 
 
 def test_bad_filter():

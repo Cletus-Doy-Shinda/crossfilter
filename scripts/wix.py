@@ -1,5 +1,5 @@
 from bs4 import BeautifulSoup
-from crossfilter.common.util import get
+from crossfilter.common.util import get, format_brand
 
 
 def getFilter(filterNumber, brand, full=False):
@@ -20,7 +20,7 @@ def getFilter(filterNumber, brand, full=False):
         if full:
             print ', '.join([cell.getText().strip() for cell in cells])
 
-        comp_brand = cells[2].get_text().rstrip()
+        comp_brand = cells[2].get_text().strip()
         comp_number = cells[1].getText().strip()
         wix_number = cells[4].getText().strip()
 

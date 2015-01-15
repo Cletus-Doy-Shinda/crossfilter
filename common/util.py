@@ -5,11 +5,15 @@ import re
 import requests
 import smtplib
 import base64
+import traceback
 
 from datetime import datetime
 from crossfilter.common.contexts import dbcursor
 from crossfilter.common.secure import get_email_credentials
 
+
+ConnectionError = requests.ConnectionError
+HTTPError = requests.HTTPError
 
 INSERT_SQL_FILE = '/var/crossfilter/logs/insert.sql'
 VALID_FILE = '/var/crossfilter/logs/validated.log'
@@ -30,6 +34,7 @@ NAME_MAP = {
 'baldwin':
     {
         'HASTINGS': ['HASTINGS PREMIUM FILTERS'],
+        'NAPA': ['NAPA', 'NAPA GOLD', 'NAPA PROSELECT'],
     },
 'carquest':
     {
@@ -40,6 +45,10 @@ NAME_MAP = {
     {
         'ACDELCO': ['AC'],
         'MOBIL': ['MOBIL OIL'],
+    },
+'fleetguard':
+    {
+        'ACDELCO': ['AC'],
     },
 'fram':
     {
@@ -63,6 +72,7 @@ NAME_MAP = {
     {
         'ACDELCO': ['AC DELCO'],
         'HASTINGS': ['HASTINGS FILTERS'],
+        'WIX': ['WIX', 'WIX XP']
     },
 'purolator':
     {
@@ -78,6 +88,7 @@ NAME_MAP = {
     {
     'ACDELCO': ['AC DELCO'],
     'HASTINGS': ['HASTINGS FILTERS'],
+    'NAPA': ['NAPA', 'NAPA GOLD', 'NAPA PROSELECT'],
     }
 }
 
@@ -90,17 +101,35 @@ def add_request(filter_number, brand):
         cursor.execute(insert)
 
 
-def get(url, cookies=None):
+def insert_new_filter(brand, filternumber, cursor):
+    """insert <brand> <filternumber> into filters table"""
+    new_insert = "insert into filters(brand, filter) " \
+                 "values('%s', '%s')" % (brand, filternumber)
+    cursor.execute(new_insert)
+
+
+def get(url, cookies=None, fatal=False):
     """retrieve <url> conents, adding <cookies> if needed"""
     if cookies:
         cookies = dict(cookies_are=cookies)
 
+    if not url.startswith('http://'):
+        url = 'http://' + url
     try:
         page = requests.get(url, cookies=cookies)
         return page.text
-    except Exception as e:
-        print 'Exception trying to access %s: %s' % (url, str(e))
+    except requests.ConnectionError as e:
+        print 'Exception trying to access %s:' % url
+        if fatal:
+            print traceback.format_exc()
+            raise
         return None
+    except requests.HTTPError as e:
+        print 'debug HTTPError: %s'
+        print traceback.format_exc()
+        if fatal:
+            raise
+    
 
 
 def post(url, cookies=None, data=dict):
