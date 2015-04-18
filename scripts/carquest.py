@@ -37,3 +37,14 @@ def getFilter(filterNumber, brand, full=False):
             cqs.add(carquest_number)
             
     return ','.join(cqs).strip()
+
+
+    # address = 'http://www.oilfilter-crossreference.com/convert/%s/%s' % (brand_names[0], filterNumber)
+    # # print address
+    # content = get(address)
+    # soup = BeautifulSoup(content)
+    # # print soup.prettify()
+    # result_table = soup.find(class_='left_details')
+    # results = result_table.find_all('ul')
+    # for result in results:
+    #     print result.getText()

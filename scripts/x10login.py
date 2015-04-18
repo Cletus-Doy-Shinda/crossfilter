@@ -26,13 +26,13 @@ def login():
                     }
 
     resp = post(address, cookies=cookies, data=login_data)
-    if reso.status_code != 200:
+    if resp.status_code != 200:
         message = """From: Cross Filter
 Subject: x10hosting login failure
 
 Failed to login into x10hosting, better do it yourself asshole.
 Status was: %s
-    """ % r.status_code
+    """ % resp.status_code
 
         sendmail(receivers=['abefriesen.af@gmail.com'], message=message)
 

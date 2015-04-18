@@ -26,11 +26,19 @@ def getFilter(filterNumber, brand, full=False):
                 comp_brand = cells[0].get_text().rstrip()
                 curr_brand = comp_brand
                 comp_number = cells[1].getText().strip()
-                fram_brand = cells[2].find('a').getText().strip()
+                link = cells[2].find('a')
+                if link:
+                    fram_brand = link.getText().strip()
+                else:
+                    fram_brand = cells[2].getText().strip()
             else:
                 comp_brand = curr_brand
                 comp_number = cells[0].getText().strip()
-                fram_brand = cells[1].find('a').getText().strip()
+                link = cells[1].find('a')
+                if link:
+                    fram_brand = link.getText().strip()
+                else:
+                    fram_brand = cells[1].getText().strip()
             if comp_brand in brand_names and comp_number == filterNumber:
                 frams.add(fram_brand)
 

@@ -38,8 +38,12 @@ NAME_MAP = {
     },
 'carquest':
     {
-        'ACDELCO': ['AC DELCO'],
+        'ACDELCO': ['AC-DELCO'], # XXX Revert to AC DELCO
         'HASTINGS': ['HASTINGS FILTERS'],
+    },
+'caterpillar':
+    {
+        'BALDWIN': ['Baldwin'],
     },
 'donaldson':
     {
@@ -72,7 +76,8 @@ NAME_MAP = {
     {
         'ACDELCO': ['AC DELCO'],
         'HASTINGS': ['HASTINGS FILTERS'],
-        'WIX': ['WIX', 'WIX XP']
+        'WIX': ['WIX', 'WIX XP'],
+        'CARQUEST': ['CARQUEST', 'CARQUEST RED']
     },
 'purolator':
     {
@@ -84,11 +89,17 @@ NAME_MAP = {
         'ACDELCO': ['AC'],
         'NAPA': ['NAPA', 'NAPA GOLD'],
     },
+'valvoline filters':
+    {
+        'ACDELCO': ['AC-DELCO'],
+        'NAPA': ['NAPA', 'NAPA GOLD'],
+    },
 'wix':
     {
     'ACDELCO': ['AC DELCO'],
     'HASTINGS': ['HASTINGS FILTERS'],
     'NAPA': ['NAPA', 'NAPA GOLD', 'NAPA PROSELECT'],
+    'CARQUEST': ['CARQUEST', 'CARQUEST RED'],
     }
 }
 
@@ -96,9 +107,14 @@ NAME_MAP = {
 def add_request(filter_number, brand):
     """add <brand> <filternumber> to requests table"""
     with dbcursor() as cursor:
-        insert = "insert into requests(brand, filter) values('%s', '%s')"
-        insert = insert % (brand, filter_number)
-        cursor.execute(insert)
+        _addrequest(filternumber, brand, cursor)
+        
+
+def _addrequest(filter_number, brand, cursor):
+    """helper to add requests"""
+    insert = "insert into requests(brand, filter) values('%s', '%s')"
+    insert = insert % (brand, filter_number)
+    cursor.execute(insert)
 
 
 def insert_new_filter(brand, filternumber, cursor):
@@ -136,13 +152,13 @@ def post(url, cookies=None, data=dict):
     """post <data> to <url>, adding <cookies> if needed. Returns
     http response code."""
     resp = requests.post(url, cookies=cookies, data=data)
-    return resp.status_code
+    return resp
 
 
 def substring(regex_pat, string):
     """returns substring matched by <regex_pat> in string"""
     match = re.search(regex_pat, string)
-    return match.group(0) if matche else ''
+    return match.group(0) if match else ''
 
 
 def sendmail(receivers=[str], message=str):
@@ -175,7 +191,6 @@ def format_brand(modulename, brand, filternumber):
     if not alias_list:
         return [brand], filternumber
     return alias_list, filternumber
-
 
 # for brand in BRANDS:
 #     brnds, fnum = format_brand(brand.lower(), 'acdelco', 'pf47')

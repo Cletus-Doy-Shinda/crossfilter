@@ -70,6 +70,13 @@ def check_brand(brnd, cursor):
                 (key, brnd, filternumber, sorted(value), sorted(results))
             mismatches.append(msg)
 
+            # if the web reports more filters than we have in the db,
+            # add those filters
+            # if len(results) > len(value):
+            #     diff = results - value
+            #     print 'adding %s to db' % ' '.join(diff)
+            #     for 
+
     assert not mismatches, '\n'.join(mismatches)
 
 

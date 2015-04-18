@@ -36,8 +36,8 @@ def check_names_old_to_new(filterNumber, brand):
 		if name == brand.lower():
 			continue
 		print 'checking %s for filters matching %s:%s' % (name, brand, filterNumber)
-		print 'matches %s' % func(filterNumber, brand, full=False)
+		print 'matches %s' % func(filterNumber, brand, full=True)
 
-# check_names_new_to_old('mobil')
-# check_names_old_to_new('MO111', 'mobil')
+# check_names_new_to_old('valvoline')
+check_names_old_to_new('VO16', 'valvoline')
 

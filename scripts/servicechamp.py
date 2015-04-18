@@ -7,14 +7,16 @@ from crossfilter.common.util import get, format_brand
 # Mobile
 # Mobile 1
 # MileGuard
+# Valvoline
 
 
-def getFilter(filterNumber, brand, full=False, supplier_name='SERVICE CHAMP'):
+def getFilter(filterNumber, brand, full=False, supplier_name='SERVICE CHAMP',
+              idval=98757):
     brand_names, filterNumber = format_brand(supplier_name,
                                              brand,
                                              filterNumber)
     address = 'http://www.showmetheparts.com/bin/ShowMeConnect.exe?lookup=' \
-              'complist&compno=%s&id=98757&storeid=&userid=' % filterNumber
+              'complist&compno=%s&id=%s&storeid=&userid=' % (filterNumber, idval)
 
     content = get(address)
     tree = ET.fromstring(content)

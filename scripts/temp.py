@@ -1,12 +1,17 @@
-import subprocess
-import MySQLdb
+# from bs4 import BeautifulSoup
 
 
+import valvoline
 from crossfilter.common.contexts import dbcursor
-from crossfilter.common.util import get
+from crossfilter.common.util import get, substring, _addrequest
 
-add = 'http://www.cficonnect.com/filterlookup/results.asp?ExactMatch=0&PartNo1=%s&MakerCode1='
 
-# print get(add % 'PF47')
-print get('http://www.asfassfjf.com')
+with dbcursor() as cursor:
+    query = "select filter from matches where brand = 'john deere' limit 30, 5`0"
+    cursor.execute(query)
+    rows = cursor.fetchall()
+    for jd in rows:
+        print 'trying %s' % jd[0]
+        print valvoline.getFilter(jd[0], 'john deere', full=True)
+
 

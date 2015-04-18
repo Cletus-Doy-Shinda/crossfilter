@@ -1,6 +1,7 @@
 #!/usr/bin/python
 """feedback.py - Send daily stats emails"""
 
+import subprocess
 
 from datetime import date, datetime, timedelta
 from crossfilter.common.contexts import dbcursor
@@ -52,41 +53,27 @@ Suggestions:
 
 def email_access(cursor):
     """daily usage stats email"""
-    file_ = open('/var/log/apache2/access.log','r')
-    lines = file_.readlines()
-    file_.close()
-    file_ = open('/var/log/apache2/access.log.1','r')
-    lines += file_.readlines()
-    file_.close()
-
-    yesterdate = str(date.today() - timedelta(1))
-    yesterday = datetime.strptime(yesterdate, '%Y-%m-%d')
-    total = 0
-
-    def getlineinfo(line):
-        """extract apache log line info"""
-        date_pat = r'\d\d/\D{3}/\d{4}(:\d\d){3}'
-        access_pat = r'POST /filter.php'
-        dmatch = substring(date_pat, line)
-        amatch = substring(access_pat, line)
-
-        return dmatch, amatch
-
-    for line in lines:
-        linedate, access_type = getlineinfo(line)
-        linedate = datetime.strptime(linedate, '%d/%b/%Y:%H:%M:%S')
-        if not access_type:
-            continue
-        delta = linedate - yesterday
-        if delta.days == 0:
-            total += 1
+    access_log_1 = '/var/log/apache2/access.log'
+    access_log_2 = '/var/log/apache2/access.log.1'
+    
+    yesterdate = date.today() - timedelta(1)
+    pretty_date = datetime.strftime(yesterdate, '%d/%b/%Y')
 
     query = "select count(*) from requests where time like '%s%%'" % yesterdate
     cursor.execute(query)
     rows = cursor.fetchall()
-    pretty_date = datetime.strftime(yesterday, '%b %d, %Y')
     misscount = int(rows[0][0])
+    
+    cmd = "grep -E '%s.*(POST|GET.*filter.php)' %s %s | wc -l" \
+        % (pretty_date, access_log_1, access_log_2)
+    cmdargs = ['bash', '-c', cmd]
+    total = int(subprocess.check_output(cmdargs))
 
+    cmd = "grep -E '%s.*(POST|GET.*filter.php).*(237|308)' %s %s | wc -l" \
+        % (pretty_date, access_log_1, access_log_2)
+    cmdargs = ['bash', '-c', cmd]
+
+    misscount = int(subprocess.check_output(cmdargs))
     hitcount = total - misscount
     hitpercent = 0
     if total > 0:
