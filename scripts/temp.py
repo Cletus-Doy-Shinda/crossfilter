@@ -1,17 +1,15 @@
-# from bs4 import BeautifulSoup
+from crossfilter.common.util import get
 
 
-import valvoline
-from crossfilter.common.contexts import dbcursor
-from crossfilter.common.util import get, substring, _addrequest
-
-
-with dbcursor() as cursor:
-    query = "select filter from matches where brand = 'john deere' limit 30, 5`0"
-    cursor.execute(query)
-    rows = cursor.fetchall()
-    for jd in rows:
-        print 'trying %s' % jd[0]
-        print valvoline.getFilter(jd[0], 'john deere', full=True)
-
-
+lines = []
+donaldson_have = set()
+donaldson_need = set()
+with open('temp.txt', 'r') as f:
+	lines = f.readlines()
+	for line in lines:
+		address = 'http://crossfilterapp.ddns.net/filter.php?brand=%s&filter=%s'
+		donaldson, carquest = line.split(':')
+		have = get(address % ('donaldson', donaldson))
+		# have = get(address % ('donaldson', 'P166375'))
+		if have:
+			print have

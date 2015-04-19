@@ -23,10 +23,10 @@ def consume():
 						curr_num = filterNumber
 						seen.add(filterNumber)
 						print 'getting matches for %s %s' % (brand, filterNumber)
-						df.retrieve(filterNumber, brand, filterNumber)
+						df.retrieve(filterNumber, brand, ID)
 					linesread += 1
 
-			time.sleep(2)
+			time.sleep(4)
 		except:
 			with open('/Users/Abe/crossfilter/text/mac_exceptions.log', 'a') as f:
 				f.write('exception processing: mobil:%s\n' % curr_num)

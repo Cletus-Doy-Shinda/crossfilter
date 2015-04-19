@@ -18,13 +18,13 @@ RETRIEVE_FUNCTIONS = [('acdelco', acdelco.getFilter),
                       ('mobil', mobil.getFilter)
                       ]
 
-SQL_LOG_FILE = '/Users/Abe/crossfilter/text/braxas_insert.sql'
+SQL_LOG_FILE = '/tmp/braxas_insert.sql'
 
 def retrieve(filterNumber, brand, ID, remote=False):
     """find all matches for <filterNumber>"""
     insert_stmt = "insert into matches values(%s, '%s', '%s');\n"
 
-    with open(SQL_LOG_FILE,'a') as out:
+    with open(SQL_LOG_FILE, 'a') as out:
         for name, func in RETRIEVE_FUNCTIONS:
             if brand != name:
                 filterString = func(filterNumber, brand.upper())
