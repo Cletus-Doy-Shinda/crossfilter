@@ -2,11 +2,12 @@ from bs4 import BeautifulSoup
 from crossfilter.common.util import get, format_brand
 
 
-def getFilter(filterNumber, brand, full=False):
-    brand_names, filterNumber = format_brand('purolator',
+def getFilter(filternumber, brand, full=False):
+    brand_names, filternumber = format_brand('purolator',
                                              brand,
-                                             filterNumber)
-    address = 'http://ca-en.purolatorautofilters.net/enen/ca/resources/Pages/InterchangeGuideResults.aspx?partnr=%s&page=1' % filterNumber
+                                             filternumber)
+    address = 'http://ca-en.purolatorautofilters.net/enen/ca/resources/Pages' \
+              '/InterchangeGuideResults.aspx?partnr=%s&page=1' % filternumber
     content = get(address)
     soup = BeautifulSoup(content)
 
@@ -14,7 +15,7 @@ def getFilter(filterNumber, brand, full=False):
     if not table:
         return ''
 
-    def format(string):
+    def format_string(string):
         s = string.strip(' Availability limited to existing inventory.')
         s = s.strip(' May not be a direct cross - check applications catalog.')
         return s
@@ -30,6 +31,7 @@ def getFilter(filterNumber, brand, full=False):
             fType = cells[3].getText()
             if full:
                 print _brand, _number, purolator_match, fType
-            if _brand in brand_names and fType.lower() == 'oil' and _number.upper() == filterNumber.upper():
-                purolators.add(format(purolator_match))
+            if _brand in brand_names and fType.lower() == 'oil' \
+                and _number.upper() == filternumber.upper():
+                purolators.add(format_string(purolator_match))
     return ','.join(purolators)

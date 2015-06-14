@@ -5,7 +5,7 @@ import subprocess
 
 from datetime import date, datetime, timedelta
 from crossfilter.common.contexts import dbcursor
-from crossfilter.common.util import substring, sendmail
+from crossfilter.common.util import sendmail
 
 
 def email_feedback(cursor):

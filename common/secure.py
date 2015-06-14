@@ -38,3 +38,9 @@ def test_secure():
 	sender, password = get_email_credentials()
 	assert sender == 'crossfilterapp@gmail.com'
 	assert password == 'Y3Jvc3NmaWx0ZXI1MTcx'
+
+def test_num_brands(brands):
+	"""test number of available brands matches"""
+	with open('/var/server/brands.php', 'r') as _file:
+		lines = _file.readlines()
+		assert len(lines) == len(brands)

@@ -20,7 +20,7 @@ Options:
 
 Example: -> ./cftest fram acdelco PF47
 \t\twill return all fram filters that match acdelco PF47
-\t\tUsing -a flag will return all fram filters that match PF47
+\t\tUsing -a flag will display all fram filters that match PF47
     """
 
     arg_count = len(sys.argv)

@@ -1,6 +1,5 @@
 import xml.etree.ElementTree as ET
 
-from bs4 import BeautifulSoup
 from crossfilter.common.util import get, format_brand
 
 

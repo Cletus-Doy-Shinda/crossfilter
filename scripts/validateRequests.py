@@ -4,12 +4,12 @@ requested by Cross Filter in the filters database"""
 
 
 import MySQLdb
-import downloadfilters as df
 import sys
 import requests
 
 from bs4 import BeautifulSoup
 from datetime import datetime
+from crossfilter.scripts import downloadfilters as df
 from crossfilter.common.secure import get_mysql_credentials
 from crossfilter.common import util
 
@@ -64,6 +64,7 @@ def valid(session, brand, fram_number):
     seen = set()
     
     def _getinfo(fbrand, htmlrow, idx):
+        """extract line info"""
         if fbrand.upper() == 'AC-DELCO':
             fbrand = 'ACDELCO'
         if fbrand not in util.BRANDS:
@@ -88,7 +89,7 @@ def valid(session, brand, fram_number):
     address = address % fram_number
     ret = session.get(address)
     soup = BeautifulSoup(ret.text)
-    print 'checking if %s %s is valid' % (brand, fram_number)
+
     table = soup.find(id='G_ctl00xContentPlaceHolder1xUltraWebGrid1')
     prev_brand = None
     new_brand = ''
@@ -106,6 +107,7 @@ def valid(session, brand, fram_number):
                     prev_brand = new_brand
                     _getinfo(new_brand, tds, 2)
 
+    print ' ...%s valid filters' % len(valids)
     return valids
 
 
@@ -146,8 +148,8 @@ class Validator():
     def insert_new_filter(self, new_brand, new_filter):
         """Insert <new_brand> <new_filter> in filters table in the database"""
         with open(util.INSERT_SQL_FILE, 'a', 1) as insert_file:
-            util.insert_new_filter(new_brand, new_filter, self.cursor)
-            ID = self.db.insert_id()
+            ID = util.insert_new_filter(new_brand, new_filter,
+                                        self.db, self.cursor)
             new_insert = "insert into filters(id, brand, filter) " \
                          "values(%d, '%s', '%s');\n" % \
                          (ID, new_brand, new_filter)
@@ -158,7 +160,7 @@ class Validator():
     def run(self):
         """Process requested filters"""
         query = "select brand, filter from requests \
-                where assessed = 'no' limit 10"
+                where assessed = 'no' limit 5"
         self.cursor.execute(query)
         rows = self.cursor.fetchall()
         validated = set()
@@ -168,7 +170,7 @@ class Validator():
         session = requests.Session()
 
         for brand, filter_number in rows:
-            print 'request: %s %s' % (brand, filter_number)
+            sys.stdout.write('request: %s %s' % (brand, filter_number))
             self.updateDB(brand, filter_number)
             if filter_number not in seen:
                 seen.add(filter_number)
@@ -209,7 +211,7 @@ class Validator():
                 df._retrieve(new_filter, new_brand, ID, self.cursor)
                 cmd = '{now}: {resp}'.format(now=now, resp=ID)
                 out.write(cmd + '\n')
-
+                self.db.commit()
         print '\n=========================\n'
         self.db.commit()
         self.db.close()

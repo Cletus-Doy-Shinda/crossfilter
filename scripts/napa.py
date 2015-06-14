@@ -7,24 +7,44 @@ def getFilter(filterNumber, brand, full=False):
                                              brand,
                                              filterNumber)
     address = 'http://www.nfhconnect.com/lookup/results.asp?PartNo=%s&Submit=Search'
+    new_address = 'http://www.nfhconnect.com/Lookup/QuickSearch?q=%s'
     address = address % filterNumber
+    new_address = new_address % filterNumber
 
-    content = get(address)
+    content = get(new_address)
     soup = BeautifulSoup(content)
 
-    table_cells = soup.find_all("td", class_='blackmedium', valign='top')
     napas = set()
-    for table_cell in table_cells:
-        row = table_cell.parent
-        cells = row.find_all('td')
-        match_number = cells[1].getText().strip()
-        match_brand = cells[2].getText().strip()
-        napa_number = cells[3].getText().strip()
+    # table_cells = soup.find_all("td", class_='blackmedium', valign='top')
+    # for table_cell in table_cells:
+    #     row = table_cell.parent
+    #     cells = row.find_all('td')
+    #     match_number = cells[1].getText().strip()
+    #     match_brand = cells[2].getText().strip()
+    #     napa_number = cells[3].getText().strip()
 
+    #     if full:
+    #         print ', '.join([cell.getText().strip() for cell in cells])
+
+    #     if match_number == filterNumber and match_brand in brand_names:
+    #         napas.add(napa_number)
+
+    # return ','.join(napas)
+
+    table = soup.find(class_='results-table partial table1')
+    rows = table.find_all(class_='white-row')
+    rows += table.find_all(class_='grey-row')
+    for row in rows:
+        compno = row.find(class_='col1').getText()
+        compbrand = row.find(class_='col2').getText()
+        napano = row.find(class_='col4')
+        if not napano:
+            continue
+        else:
+            napano = napano.getText().strip()
         if full:
-            print ', '.join([cell.getText().strip() for cell in cells])
-
-        if match_number == filterNumber and match_brand in brand_names:
-            napas.add(napa_number)
+            print compbrand, compno, napano
+        if compno == filterNumber and compbrand in brand_names:
+            napas.add(napano)
 
     return ','.join(napas)

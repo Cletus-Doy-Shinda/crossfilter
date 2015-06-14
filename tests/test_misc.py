@@ -2,6 +2,7 @@
 
 import traceback
 from crossfilter.common import secure, util
+from crossfilter.scripts import downloadfilters as df
 
 
 def test_hidden_functions():
@@ -23,3 +24,8 @@ def test_malformed_url():
     resp = util.get('www.google.com')
     assert resp
 
+
+def test_num_brands():
+    """test all available brands are listed"""
+    assert len(df.RETRIEVE_FUNCTIONS) == len(util.BRANDS)
+    secure.test_num_brands(util.BRANDS)

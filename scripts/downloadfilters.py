@@ -3,9 +3,21 @@ for a particular Brand"""
 
 
 import sys
-import acdelco, baldwin, carquest, donaldson
-import napa, fram, wix, purolator, servicechamp, johndeere
-import fleetguard, hastings, mobil
+import crossfilter.scripts.acdelco as acdelco
+import crossfilter.scripts.baldwin as baldwin
+import crossfilter.scripts.carquest as carquest
+import crossfilter.scripts.donaldson as donaldson
+import crossfilter.scripts.napa as napa
+import crossfilter.scripts.fram as fram
+import crossfilter.scripts.wix as wix
+import crossfilter.scripts.purolator as purolator
+import crossfilter.scripts.servicechamp as servicechamp
+import crossfilter.scripts.johndeere as johndeere
+import crossfilter.scripts.fleetguard as fleetguard
+import crossfilter.scripts.hastings as hastings
+import crossfilter.scripts.mobil as mobil
+import crossfilter.scripts.valvoline as valvoline
+import crossfilter.scripts.luberfiner as luberfiner
 
 from crossfilter.common.util import INSERT_SQL_FILE
 from crossfilter.common.contexts import dbcursor
@@ -23,7 +35,9 @@ RETRIEVE_FUNCTIONS = [('acdelco', acdelco.getFilter),
                       ('john deere', johndeere.getFilter),
                       ('fleetguard', fleetguard.getFilter),
                       ('hastings', hastings.getFilter),
-                      ('mobil', mobil.getFilter)
+                      ('mobil', mobil.getFilter),
+                      ('valvoline', valvoline.getFilter),
+                      ('luberfiner', luberfiner.getFilter),
                       ]
 
 

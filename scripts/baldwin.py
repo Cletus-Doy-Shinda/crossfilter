@@ -1,5 +1,5 @@
 from bs4 import BeautifulSoup
-from crossfilter.common.util import get, format_brand
+from crossfilter.common.util import get, format_brand, replace
 
 
 def getFilter(filterNumber, brand, full=False):
@@ -24,6 +24,6 @@ def getFilter(filterNumber, brand, full=False):
             print ', '.join([cell.getText().strip() for cell in cells])
 
         if comp_brand in brand_names and comp_number == filterNumber:
-            bws.add(baldwin_filter)
+            bws.add(replace(r'\[[0-9]+\] ', '', baldwin_filter))
 
     return ','.join(bws)

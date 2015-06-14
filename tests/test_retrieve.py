@@ -5,12 +5,10 @@ brand's website
 
 
 import random
-import subprocess
 
 from collections import defaultdict
-from crossfilter.scripts.fram import getFilter
 from crossfilter.common.contexts import dbcursor
-from crossfilter.common.util import BRANDS
+from crossfilter.common.util import BRANDS, add_filter
 
 
 MODULE_DIR = 'crossfilter.scripts.%s'
@@ -25,6 +23,17 @@ def test_retrieve():
                 % brnd
             check_brand.description = desc
             yield check_brand, brnd, cursor
+
+
+def test_bad_filter():
+    """test bad filter request from brand websites"""
+    for brand in BRANDS:
+        if brand == 'carquest':
+            continue
+        module_name = MODULE_DIR % brand.lower().strip().replace(' ', '')
+        module = __import__(module_name, fromlist=['crossfilter.scripts'])
+        result = module.getFilter('foo', 'bar')
+        assert not result
 
 
 def check_brand(brnd, cursor):
@@ -47,7 +56,8 @@ def check_brand(brnd, cursor):
     idnum, filternumber = rows[0]
 
     # get all the matches for said filter with idnum
-    cursor.execute("select brand, filter from matches where id = %s" % idnum)
+    query = "select brand, filter from matches where id = %s" % idnum
+    cursor.execute(query)
     rows = cursor.fetchall()
 
     # add all filters to list with brand as key in a dict
@@ -65,27 +75,21 @@ def check_brand(brnd, cursor):
         results = results.split(',')
         
         # assert the filters are the same
-        if set(value) != set(results):
-            msg = 'mismatch in %s for %s %s:\ndb: %s\nweb: %s' % \
-                (key, brnd, filternumber, sorted(value), sorted(results))
-            mismatches.append(msg)
-
+        webset = set(results)
+        dbset = set(value)
+        if dbset != webset:
             # if the web reports more filters than we have in the db,
             # add those filters
-            # if len(results) > len(value):
-            #     diff = results - value
-            #     print 'adding %s to db' % ' '.join(diff)
-            #     for 
+            if len(results) > len(value):
+                diff = webset - dbset
+                mismatches.append('found more webfilters in %s for %s %s: %s' \
+                    % (key, brnd, filternumber, ','.join(diff)))
+                for diff_filter in diff:
+                    add_filter(idnum, key, diff_filter)
+            else:
+                msg = 'mismatch in %s for %s %s:\ndb: %s\nweb: %s' % \
+                    (key, brnd, filternumber, sorted(value), sorted(results))
+                mismatches.append(msg)
+
 
     assert not mismatches, '\n'.join(mismatches)
-
-
-def test_bad_filter():
-    """test bad filter request from brand websites"""
-    for brand in BRANDS:
-        if brand == 'carquest':
-            continue
-        module_name = MODULE_DIR % brand.lower().strip().replace(' ', '')
-        module = __import__(module_name, fromlist=['crossfilter.scripts'])
-        result = module.getFilter('foo', 'bar')
-        assert not result

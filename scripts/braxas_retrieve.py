@@ -1,41 +1,26 @@
 import sys
-import acdelco, baldwin, carquest, donaldson
-import napa, fram, wix, purolator, servicechamp, johndeere
-import fleetguard, hastings, mobil
+from crossfilter.scripts.downloadfilters import RETRIEVE_FUNCTIONS
 
-RETRIEVE_FUNCTIONS = [('acdelco', acdelco.getFilter),
-                      ('baldwin', baldwin.getFilter),
-                      ('carquest', carquest.getFilter),
-                      ('service champ', servicechamp.getFilter),
-                      ('donaldson', donaldson.getFilter),
-                      ('napa', napa.getFilter),
-                      ('fram', fram.getFilter),
-                      ('wix', wix.getFilter),
-                      ('purolator', purolator.getFilter),
-                      ('john deere', johndeere.getFilter),
-                      ('fleetguard', fleetguard.getFilter),
-                      ('hastings', hastings.getFilter),
-                      ('mobil', mobil.getFilter)
-                      ]
 
 SQL_LOG_FILE = '/tmp/braxas_insert.sql'
 
-def retrieve(filterNumber, brand, ID, remote=False):
-    """find all matches for <filterNumber>"""
+def retrieve(filternumber, brand, dbid):
+    """find all matches for <filternumber>"""
     insert_stmt = "insert into matches values(%s, '%s', '%s');\n"
 
     with open(SQL_LOG_FILE, 'a') as out:
         for name, func in RETRIEVE_FUNCTIONS:
             if brand != name:
-                filterString = func(filterNumber, brand.upper())
-                if filterString:
-                    filters = filterString.split(',')
-                    for f in filters:
-                        f = f.strip()
+                results = func(filternumber, brand.upper())
+                if results:
+                    filters = results.split(',')
+                    for _filter in filters:
+                        _filter = _filter.strip()
                         try:
-                            out.write(insert_stmt % (ID, name, f))
+                            out.write(insert_stmt % (dbid, name, _filter))
                         except Exception:
-                            out.write('Exception for %s, %s, %s' % (ID, name, f))
+                            out.write('Exception for %s, %s, %s' \
+                                      % (dbid, name, _filter))
                             continue
 
 

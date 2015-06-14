@@ -6,6 +6,7 @@ import requests
 import smtplib
 import base64
 import traceback
+import subprocess
 
 from datetime import datetime
 from crossfilter.common.contexts import dbcursor
@@ -21,7 +22,7 @@ EMAIL_LOG_FILE = '/var/crossfilter/logs/email.log'
 
 BRANDS = ['ACDELCO', 'BALDWIN', 'CARQUEST', 'DONALDSON', 'FRAM',
           'NAPA', 'WIX', 'PUROLATOR', 'SERVICE CHAMP', 'JOHN DEERE',
-          'FLEETGUARD', 'HASTINGS', 'MOBIL'
+          'FLEETGUARD', 'HASTINGS', 'MOBIL', 'VALVOLINE', 'LUBERFINER'
         ]
 
 NAME_MAP = {
@@ -35,6 +36,7 @@ NAME_MAP = {
     {
         'HASTINGS': ['HASTINGS PREMIUM FILTERS'],
         'NAPA': ['NAPA', 'NAPA GOLD', 'NAPA PROSELECT'],
+        'LUBERFINER': ['LUBER-FINER'],
     },
 'carquest':
     {
@@ -49,6 +51,7 @@ NAME_MAP = {
     {
         'ACDELCO': ['AC'],
         'MOBIL': ['MOBIL OIL'],
+        'LUBERFINER': ['LUBER-FINER'],
     },
 'fleetguard':
     {
@@ -57,27 +60,46 @@ NAME_MAP = {
 'fram':
     {
         'ACDELCO': ['AC-DELCO'],
+        'LUBERFINER': ['LUBER-FINER'],
     },
 'hastings':
     {
         'BALDWIN': ['BALDWIN FILTERS'],
         'NAPA': ['NAPA GOLD'],
+        'LUBERFINER': ['LUBER-FINER'],
     },
 'john deere':
     {
         'ACDELCO': ['AC'],
+        'BALDWIN': ['Baldwin'],
+        'CARQUEST': ['Carquest'],
+        'DONALDSON': ['Donaldson'],
+        'FLEETGUARD': ['Fleetguard'],
+        'FRAM': ['Fram'],
+        'HASTINGS': ['Hastings'],
+        'LUBERFINER': ['Luberfiner (Champion)'],
+        'MOBIL': ['Mobile'],
+        'PUROLATOR': ['Purolator'],
+        'VALVOLINE': ['Valvoline'],
+    },
+'luberfiner':
+    {
+        'ACDELCO': ['AC'],
+        'NAPA': ['NAPA GOLD', 'NAPA PROSELECT']
     },
 'mobil':
     {
         'ACDELCO': ['AC'],
         'NAPA': ['NAPA', 'NAPA GOLD'],
+        'LUBERFINER': ['LUBER-FINER'],
     },
 'napa':
     {
         'ACDELCO': ['AC DELCO'],
         'HASTINGS': ['HASTINGS FILTERS'],
         'WIX': ['WIX', 'WIX XP'],
-        'CARQUEST': ['CARQUEST', 'CARQUEST RED']
+        'CARQUEST': ['CARQUEST', 'CARQUEST RED'],
+        'LUBERFINER': ['LUBER-FINER', 'LUBERFINER'],
     },
 'purolator':
     {
@@ -88,6 +110,7 @@ NAME_MAP = {
     {
         'ACDELCO': ['AC'],
         'NAPA': ['NAPA', 'NAPA GOLD'],
+        'LUBERFINER': ['LUBER-FINER'],
     },
 'valvoline filters':
     {
@@ -104,6 +127,14 @@ NAME_MAP = {
 }
 
 
+def trycmd(cmd):
+    """execute <cmd> and assert it was successful"""
+    if not isinstance(cmd, list):
+        cmd = shlex.split(cmd)
+    retc = subprocess.call(cmd)
+    assert retc == 0, '%s failed with retc: %s' % (' '.join(cmd), retc)
+
+
 def add_request(filter_number, brand):
     """add <brand> <filternumber> to requests table"""
     with dbcursor() as cursor:
@@ -117,11 +148,20 @@ def _addrequest(filter_number, brand, cursor):
     cursor.execute(insert)
 
 
-def insert_new_filter(brand, filternumber, cursor):
+def add_filter(keyid, brand, filternumber):
+    """add <brand>, <filternumber> to matches table"""
+    with dbcursor() as cursor:
+        add = "insert into matches(id, brand, filter) " \
+              "values(%s, '%s', '%s')" % (keyid, brand, filternumber)
+        cursor.execute(add)
+
+
+def insert_new_filter(brand, filternumber, db, cursor):
     """insert <brand> <filternumber> into filters table"""
     new_insert = "insert into filters(brand, filter) " \
                  "values('%s', '%s')" % (brand, filternumber)
     cursor.execute(new_insert)
+    return db.insert_id()
 
 
 def get(url, cookies=None, fatal=False):
@@ -192,6 +232,9 @@ def format_brand(modulename, brand, filternumber):
         return [brand], filternumber
     return alias_list, filternumber
 
-# for brand in BRANDS:
-#     brnds, fnum = format_brand(brand.lower(), 'acdelco', 'pf47')
-#     print '%s: %s %s' % (brand, brnds, fnum)
+def replace(regex, replacement, string):
+    """replace <regex> with <replacement> in <string>"""
+    return re.sub(regex, replacement, string)
+
+
+
