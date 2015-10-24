@@ -37,6 +37,7 @@ NAME_MAP = {
         'HASTINGS': ['HASTINGS PREMIUM FILTERS'],
         'NAPA': ['NAPA', 'NAPA GOLD', 'NAPA PROSELECT'],
         'LUBERFINER': ['LUBER-FINER'],
+        'CARQUEST': ['CARQUEST RED', 'CARQUEST']
     },
 'carquest':
     {
@@ -113,6 +114,11 @@ NAME_MAP = {
         'LUBERFINER': ['LUBER-FINER'],
     },
 'valvoline filters':
+    {
+        'ACDELCO': ['AC-DELCO'],
+        'NAPA': ['NAPA', 'NAPA GOLD'],
+    },
+'valvoline':
     {
         'ACDELCO': ['AC-DELCO'],
         'NAPA': ['NAPA', 'NAPA GOLD'],

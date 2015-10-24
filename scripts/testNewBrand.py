@@ -89,7 +89,7 @@ def check_names_old_to_new(new_matches, brand):
 
 
 # new_brand = 'luberfiner'
-# # new_matches = check_names_new_to_old(new_brand)
+# new_matches = check_names_new_to_old(new_brand)
 # new_matches = set()
 # new_matches.add('PH2840')
 # new_matches.add('PH47')

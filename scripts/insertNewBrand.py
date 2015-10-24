@@ -144,7 +144,3 @@ def run(brand):
 
 if __name__ == "__main__":
     run(sys.argv[1])
-
-# start_consumer()
-# time.sleep(60)
-# stop_consumer()

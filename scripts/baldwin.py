@@ -1,4 +1,6 @@
 from bs4 import BeautifulSoup
+import time
+
 from crossfilter.common.util import get, format_brand, replace
 
 
@@ -8,10 +10,10 @@ def getFilter(filterNumber, brand, full=False):
                                              filterNumber)
     address = "http://catalog.baldwinfilter.com/BaldwinDisplay.asp?URL=BaldwinOEM.asp&partnumber=%s=&optiontype=OEM"
     address = address % filterNumber
-    
+
     content = get(address)
     soup = BeautifulSoup(content)
-    
+
     rows = soup.find_all("tr", class_="tblrow")
     bws = set()
 

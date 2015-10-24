@@ -3,6 +3,7 @@
 import traceback
 from crossfilter.common import secure, util
 from crossfilter.scripts import downloadfilters as df
+from crossfilter.scripts.acdelco import name2id
 
 
 def test_hidden_functions():
@@ -29,3 +30,9 @@ def test_num_brands():
     """test all available brands are listed"""
     assert len(df.RETRIEVE_FUNCTIONS) == len(util.BRANDS)
     secure.test_num_brands(util.BRANDS)
+
+def test_acdelco_name2id():
+    """test all available brands are in acdelco module"""
+    for key in util.BRANDS:
+        if key != 'ACDELCO':
+            assert key in name2id.keys(), '%s' % key

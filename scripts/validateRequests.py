@@ -160,7 +160,7 @@ class Validator():
     def run(self):
         """Process requested filters"""
         query = "select brand, filter from requests \
-                where assessed = 'no' limit 5"
+                where assessed = 'no' limit 15"
         self.cursor.execute(query)
         rows = self.cursor.fetchall()
         validated = set()
@@ -170,7 +170,8 @@ class Validator():
         session = requests.Session()
 
         for brand, filter_number in rows:
-            sys.stdout.write('request: %s %s' % (brand, filter_number))
+            filter_number = filter_number.strip()
+            sys.stdout.write(('request: %s %s' % (brand, filter_number)).ljust(35))
             self.updateDB(brand, filter_number)
             if filter_number not in seen:
                 seen.add(filter_number)

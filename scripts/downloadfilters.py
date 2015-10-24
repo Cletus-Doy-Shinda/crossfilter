@@ -3,6 +3,8 @@ for a particular Brand"""
 
 
 import sys
+from threading import Thread
+
 import crossfilter.scripts.acdelco as acdelco
 import crossfilter.scripts.baldwin as baldwin
 import crossfilter.scripts.carquest as carquest
@@ -39,27 +41,42 @@ RETRIEVE_FUNCTIONS = [('acdelco', acdelco.getFilter),
                       ('valvoline', valvoline.getFilter),
                       ('luberfiner', luberfiner.getFilter),
                       ]
+INSERT_STMT = "insert into matches values(%s, '%s', '%s');\n"
+
+
+def async_retrieve(func, filternumber, brand, name, ID, results):
+    """Called in a thread to download all matching filters for
+    a specific <brand>"""
+    result = func(filternumber, brand)
+    if result:
+        filters = result.split(',')
+        for f in filters:
+            stmt = INSERT_STMT % (ID, name, f)
+            results.append(stmt)
 
 
 def _retrieve(filternumber, brand, ID, cursor):
     """Helper to retrieve all matches for <brand> <filternumber>.
     <cursor> is database cursor"""
-    insert_stmt = "insert into matches values(%s, '%s', '%s');\n"
+    results = []
+    tp = []
 
-    with open(INSERT_SQL_FILE,'a') as out:
-        for name, func in RETRIEVE_FUNCTIONS:
-            if brand != name:
-                filterString = func(filternumber, brand.upper())
-                if filterString:
-                    filters = filterString.split(',')
-                    for f in filters:
-                        f = f.strip()
-                        try:
-                            cursor.execute(insert_stmt % (ID, name, f))
-                            out.write(insert_stmt % (ID, name, f))
-                        except Exception:
-                            out.write('Exception for %s, %s, %s\n' % (ID, name, f))
-                            continue
+    for name, func in RETRIEVE_FUNCTIONS:
+        t = Thread(target=async_retrieve, name=name,
+                   args=[func, filternumber, brand, name, ID, results])
+        tp.append(t)
+        t.start()
+
+    for t in tp:
+        t.join()
+
+    with open(INSERT_SQL_FILE, 'a') as out:
+        for r in results:
+            try:
+                cursor.execute(r)
+                out.write(r)
+            except Exception as e:
+                out.write('Exception executing "%s": %s' % (r, str(e)))
 
 
 def retrieve(filternumber, brand, ID):
