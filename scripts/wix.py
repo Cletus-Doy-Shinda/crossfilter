@@ -22,6 +22,7 @@ def getFilter(filterNumber, brand, full=False):
 
         comp_brand = cells[2].get_text().strip()
         comp_number = cells[1].getText().strip()
+        comp_number = comp_number.replace(' Superseded by', '')
         wix_number = cells[4].getText().strip()
 
         if comp_brand in brand_names and comp_number == filterNumber:
