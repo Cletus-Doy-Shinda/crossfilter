@@ -22,10 +22,15 @@ def getFilter(filterNumber, brand, full=False, supplier_name='SERVICE CHAMP',
     tree = ET.fromstring(content)
 
     def match(mfg, supplier, mfg_number, part_type):
-        if not part_type or not supplier:
+        if not supplier:
             return False
         if supplier.upper() == supplier_name and mfg_number.upper() == filterNumber:
-            if mfg.upper() in brand_names and 'Engine Oil' in part_type:
+            if mfg.upper() in brand_names:
+                if part_type:
+                    if 'Engine Oil' in part_type:
+                        return True
+                    else:
+                        return False
                 return True
         return False
 

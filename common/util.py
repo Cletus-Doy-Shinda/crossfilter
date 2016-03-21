@@ -86,7 +86,8 @@ NAME_MAP = {
 'luberfiner':
     {
         'ACDELCO': ['AC'],
-        'NAPA': ['NAPA GOLD', 'NAPA PROSELECT']
+        'NAPA': ['NAPA GOLD', 'NAPA PROSELECT'],
+        'CARQUEST': ['CARQUEST', 'CARQUEST PREMIUM']
     },
 'mobil':
     {
@@ -194,10 +195,10 @@ def get(url, cookies=None, fatal=False):
     
 
 
-def post(url, cookies=None, data=dict):
+def post(url, cookies=None, data=dict, headers={}):
     """post <data> to <url>, adding <cookies> if needed. Returns
     http response code."""
-    resp = requests.post(url, cookies=cookies, data=data)
+    resp = requests.post(url, cookies=cookies, data=data, headers=headers)
     return resp
 
 

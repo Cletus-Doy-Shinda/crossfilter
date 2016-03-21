@@ -13,7 +13,7 @@ def getFilter(filternumber, brand, full=False):
     if not content:
         return ''
     
-    soup = BeautifulSoup(content)
+    soup = BeautifulSoup(content, 'html.parser')
     hastings = set()
 
     form = soup.find(id='BaldwinDisplay')

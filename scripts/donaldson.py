@@ -10,7 +10,7 @@ def getFilter(filterNumber, brand, full=False):
     address = address % filterNumber
 
     content = get(address)
-    soup = BeautifulSoup(content)
+    soup = BeautifulSoup(content, 'html.parser')
 
     form = soup.find(id='forminvio')
     donaldsons = set()

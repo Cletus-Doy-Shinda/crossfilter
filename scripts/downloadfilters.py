@@ -68,7 +68,9 @@ def _retrieve(filternumber, brand, ID, cursor):
         t.start()
 
     for t in tp:
-        t.join()
+        t.join(30.0 * 60)  # 30 minutes
+        if t.isAlive():
+            print 'Thread %s is still going after 30 minutes' % t.name
 
     with open(INSERT_SQL_FILE, 'a') as out:
         for r in results:

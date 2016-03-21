@@ -16,6 +16,7 @@ name2id = {
     'NAPA': 821,
     'PUROLATOR': 995,
     'SERVICE CHAMP': 1697,
+    'SERVICECHAMP': 1697,
     'VALVOLINE': 2704,
     'WIX': 1312,
 }
@@ -26,6 +27,10 @@ def isoilfilter(string):
         return True
     if 'FILTER,OIL' in string:
         return True
+    if 'FILTER,ENG OIL' in string:
+        return True
+    if 'FILTER ASM,OIL' in string:
+        return True
     return False
 
 
@@ -34,6 +39,7 @@ def getFilter(filterNumber, brand, full=False):
                                              brand,
                                              filterNumber)
     address = 'http://parts-catalog.acdelco.com/catalog/interchange.php'
+
     catid = name2id.get(brand.upper(), None)
     if not catid:
         return ''
@@ -49,7 +55,7 @@ def getFilter(filterNumber, brand, full=False):
     }
     resp = post(address, data=data)
     if resp.status_code == 200:
-        soup = BeautifulSoup(resp.text)
+        soup = BeautifulSoup(resp.text, 'html.parser')
     else:
         return ''
 

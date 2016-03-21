@@ -12,7 +12,7 @@ def getFilter(filterNumber, brand, full=False):
             'ctl00$MainContent$btnSearch2': 'Search'}
 
     content = get(address)
-    soup = BeautifulSoup(content)
+    soup = BeautifulSoup(content, 'html.parser')
 
     viewstate = soup.find(id='__VIEWSTATE')
     viewstate = viewstate['value']
@@ -27,7 +27,7 @@ def getFilter(filterNumber, brand, full=False):
         print 'Exception posting to %s: status code: %s' \
               % (address, resp.status_code)
     
-    soup = BeautifulSoup(resp.text)
+    soup = BeautifulSoup(resp.text, 'html.parser')
     results = soup.find_all(class_='search-result')
     cats = set()
 

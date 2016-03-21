@@ -16,7 +16,7 @@ def getFilter(filterNumber, brand, full=False):
 #     content = get(address)
 #     if not content:
 #         return ''
-#     soup = BeautifulSoup(content)
+#     soup = BeautifulSoup(content, 'html.parser')
 
 #     table_cells = soup.find_all("td", class_='bluemedium')
 #     cqs = set()
@@ -46,7 +46,7 @@ def getFilter(filterNumber, brand, full=False):
     # address = 'http://www.oilfilter-crossreference.com/convert/%s/%s' % (brand_names[0], filterNumber)
     # # print address
     # content = get(address)
-    # soup = BeautifulSoup(content)
+    # soup = BeautifulSoup(content, 'html.parser')
     # # print soup.prettify()
     # result_table = soup.find(class_='left_details')
     # results = result_table.find_all('ul')

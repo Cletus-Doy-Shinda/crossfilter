@@ -11,7 +11,7 @@ def getFilter(filterNumber, brand, full=False):
     content = get(address)
     if not content:
         return ''
-    soup = BeautifulSoup(content)
+    soup = BeautifulSoup(content, 'html.parser')
 
     table = soup.find(id="G_ctl00xContentPlaceHolder1xUltraWebGrid1")
     frams = set()

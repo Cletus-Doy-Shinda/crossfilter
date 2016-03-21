@@ -25,17 +25,6 @@ def test_retrieve():
             yield check_brand, brnd, cursor
 
 
-def test_bad_filter():
-    """test bad filter request from brand websites"""
-    for brand in BRANDS:
-        if brand == 'carquest':
-            continue
-        module_name = MODULE_DIR % brand.lower().strip().replace(' ', '')
-        module = __import__(module_name, fromlist=['crossfilter.scripts'])
-        result = module.getFilter('foo', 'bar')
-        assert not result
-
-
 def check_brand(brnd, cursor):
     """check db filters for <brnd> match those returned by website"""
     db_filters = defaultdict(list)
@@ -67,7 +56,7 @@ def check_brand(brnd, cursor):
 
     # now compare those values with what the website reports
     for key, value in db_filters.items():
-        if key == 'carquest':
+        if key in ['carquest', 'purolator']:
             continue
         module_name = MODULE_DIR % key
         module = __import__(module_name, fromlist=['crossfilter.scripts'])

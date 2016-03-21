@@ -12,7 +12,7 @@ def getFilter(filter_number, brand, full=False):
     form_data = 'userAction=exactSearch&browse=&screenName=partSearch&priceIdx=1&searchAppType=&searchType=exactSearch&partSearchNumber=%s&pageIndex=1&endPageIndex=1' % filter_number
 
     page = urllib2.urlopen(address, data=form_data)
-    soup = BeautifulSoup(page)
+    soup = BeautifulSoup(page, 'html.parser')
 
     form = soup.find(attrs={'name':'partsearch'})
     if not form:

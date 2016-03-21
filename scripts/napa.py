@@ -11,7 +11,7 @@ def getFilter(filterNumber, brand, full=False):
     new_address = new_address % filterNumber
 
     content = get(new_address)
-    soup = BeautifulSoup(content)
+    soup = BeautifulSoup(content, 'html.parser')
 
     napas = set()
     table = soup.find(class_='results-table partial table1')

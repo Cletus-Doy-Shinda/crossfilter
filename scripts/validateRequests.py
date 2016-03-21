@@ -21,7 +21,7 @@ def is_oil_filter(session, filter_number):
     address = "http://www.framcatalog.com/PartDetail.aspx?b=F&pn=%s"
     address = address % filter_number
     ret = session.get(address)
-    soup = BeautifulSoup(ret.text)
+    soup = BeautifulSoup(ret.text, 'html.parser')
     table = soup.find(id="G_ctl00xContentPlaceHolder1xUltraWebGridxAttributes")
     if table:
         rows = table.find_all('tr')
@@ -39,7 +39,7 @@ def isvalidfram(session, filter_number):
     address = "http://www.framcatalog.com/Part.aspx?b=F&pn=*%s*&em=True"
     address = address % filter_number
     ret = session.get(address)
-    soup = BeautifulSoup(ret.text)
+    soup = BeautifulSoup(ret.text, 'html.parser')
     table = soup.find(id="G_ctl00xContentPlaceHolder1xUltraWebGrid1")
     valids = []
     if table:
@@ -88,7 +88,7 @@ def valid(session, brand, fram_number):
     address = "http://www.framcatalog.com/Competitor.aspx?b=F&pn=*%s*&em=True"
     address = address % fram_number
     ret = session.get(address)
-    soup = BeautifulSoup(ret.text)
+    soup = BeautifulSoup(ret.text, 'html.parser')
 
     table = soup.find(id='G_ctl00xContentPlaceHolder1xUltraWebGrid1')
     prev_brand = None
@@ -160,7 +160,7 @@ class Validator():
     def run(self):
         """Process requested filters"""
         query = "select brand, filter from requests \
-                where assessed = 'no' limit 15"
+                where assessed = 'no' limit 10"
         self.cursor.execute(query)
         rows = self.cursor.fetchall()
         validated = set()
